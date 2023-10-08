@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "testCaseName": "Test1",
+      "status": "Passed",
+      "executionTime": 10,
+      "timestamp": "2021-09-25T18:44:00Z"
+    },
+    {
+      "testCaseName": "Test2",
+      "status": "Failed",
+      "executionTime": 15,
+      "timestamp": "2021-09-25T18:45:00Z"
+    }
+  ]
+}
+
