@@ -3,37 +3,50 @@ using TestResultsAnalyzer.Services;
 
 namespace TestResultsAnalyzer
 {
+    /// <summary>
+    /// The main Program class responsible for reading test results, computing metrics, and exporting data to a CSV file.
+    /// </summary>
     public class Program
     {
         public static void Main(string[] args)
         {
-            // Ruta al archivo JSON
+            // Define the path to the JSON file containing test results
             string jsonFilePath = "InputData/TestData.json";
 
-            // Leer datos del archivo JSON
+            // Read test results from JSON file
             TestResults testResults = JsonService.ReadJsonFile(jsonFilePath);
 
-            // Inicializar MetricsService
+            // Initialize the MetricsService class to compute metrics
             MetricsService metricsService = new MetricsService();
 
-            // Calcular métricas
-            int totalCases = metricsService.TotalTestCases(testResults);
-            int passedCases = metricsService.PassedTestCases(testResults);
-            int failedCases = metricsService.FailedTestCases(testResults);
-            double averageTime = metricsService.AverageExecutionTime(testResults);
-            double minTime = metricsService.MinExecutionTime(testResults);
-            double maxTime = metricsService.MaxExecutionTime(testResults);
+            // Compute test metrics
+            TestMetrics metrics = new TestMetrics();
+            metrics.TotalCases = metricsService.TotalTestCases(testResults);
+            metrics.PassedCases = metricsService.PassedTestCases(testResults);
+            metrics.FailedCases = metricsService.FailedTestCases(testResults);
+            metrics.AverageTime = metricsService.AverageExecutionTime(testResults);
+            metrics.MinTime = metricsService.MinExecutionTime(testResults);
+            metrics.MaxTime = metricsService.MaxExecutionTime(testResults);
+            metrics.PassedCasesByModule = metricsService.PassedCasesByModule(testResults);
+            metrics.FailedCasesByModule = metricsService.FailedCasesByModule(testResults);
+            metrics.TestCasesByTester = metricsService.TestCasesByTester(testResults);
+            metrics.TotalTesters = metricsService.TotalTesters(testResults);
 
-            // Mostrar resultados
-            Console.WriteLine($"Total Cases: {totalCases}");
-            Console.WriteLine($"Passed Cases: {passedCases}");
-            Console.WriteLine($"Failed Cases: {failedCases}");
-            Console.WriteLine($"Average Execution Time: {averageTime}");
-            Console.WriteLine($"Min Execution Time: {minTime}");
-            Console.WriteLine($"Max Execution Time: {maxTime}");
+            // Create Results folder if it doesn't exist
+            string projectDirectory = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\"));
+            string resultsDirectory = Path.Combine(projectDirectory, "Results");
+            if (!Directory.Exists(resultsDirectory))
+            {
+                Directory.CreateDirectory(resultsDirectory);
+            }
 
-            // Exportar resultados a CSV
-            CsvService.WriteToCsv(testResults);
+            // Generate a unique name for the CSV file
+            string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            string csvFileName = $"TestResults+{timestamp}.csv";
+            string csvFilePath = Path.Combine(resultsDirectory, csvFileName);
+
+            // Export metrics and test results to a CSV file
+            CsvService.WriteToCsv(testResults, csvFilePath, metrics);
         }
     }
 }
